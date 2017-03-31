@@ -1,5 +1,5 @@
 var did_modal_pop = false;
-var achievers = [];
+var powerEmail = "";
 
 (function(window) {
     'use strict';
@@ -17,17 +17,56 @@ var achievers = [];
         }
     }
 
+    FormHandler.prototype.addInputHandler = function(fn) {
+        console.log('Setting input handler for form');
+        this.$formElement.on('input', '#emailInput', function(event) {
+            var emailAddress = $("#emailInput").val();
+            var message = '';
+            var checker = fn(emailAddress);
+            if (checker) {
+                event.target.setCustomValidity('');
+            } else {
+                message = emailAddress + ' is not an authorized email address!'
+                event.target.setCustomValidity(message);
+            }
+        });
+    };
+    FormHandler.prototype.addDecafHandler = function(fn) {
+        this.$formElement.on('input', '#coffeeOrder, #strengthLevel', function(event) {
+            var coffeePtr = $("#coffeeOrder");
+            var coffee = $("#coffeeOrder").val();
+            var strength = $("#strengthLevel").val();
+            var message = '';
+            console.log(strength);
+            console.log(coffee);
+            var checker = fn(coffee, strength);
+            console.log(checker);
+            if (checker === false) {
+                console.log("false handler ran");
+                message = '';
+                console.log(event.target.id);
+                coffeePtr.get(0).setCustomValidity('');
+                return;
+            }
+            console.log("true handler ran");
+            message = 'That is not a decaf caffeine level.';
+            coffeePtr.get(0).setCustomValidity(message);
+            return;
+
+        });
+    };
+
     FormHandler.prototype.addSubmitHandler = function(fn) {
+        console.log('Setting submit handler for form');
         this.$formElement.on('submit', function(event) {
             event.preventDefault();
-            var email = $("#emailInput").val();
             var strength = $("#strengthLevel").val();
             var flavor = $("#flavorshot").find(":selected").val();
             var size = $("input[name=size]:checked").val();
-            if ((strength > 66 && flavor != '' && size === 'coffeezilla' && did_modal_pop === false) || (achievers.indexOf(email) === 0 && did_modal_pop === false)) {
+            if (strength > 66 && flavor != '' && size === 'bfc' && did_modal_pop === false) {
                 //HANDLE MODAL
+                console.log('Modal should be showing now');
                 did_modal_pop = true;
-                achievers.push(email);
                 $("#myModal").modal('show');
             } else {
                 var data = {};
@@ -40,10 +79,6 @@ var achievers = [];
                 this.reset();
                 this.elements[0].focus();
                 did_modal_pop = false;
-                $("#powerBar").hide();
-                $("#range-label").empty();
-                $("#range-label").append('Caffeine Rating: 30');
-                $("#range-label").css("color", "green");
             }
         });
     };
